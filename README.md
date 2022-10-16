@@ -11,7 +11,7 @@ This is the programmings which I made
 
 
 
-[Youtube Video: BYUI informative website for Japanese potential student in React](https://youtu.be/StUumpq4Eu4)
+[Youtube Video: PackMan in PyGame](https://youtu.be/StUumpq4Eu4)
 
 # Development Environment
 
@@ -25,5 +25,5 @@ This is the programmings which I made
 
 # Useful Websites
 
-* [React Documentation](https://reactjs.org/docs/getting-started.html)
-* [Atom design](https://medium.com/@janelle.wg/atomic-design-pattern-how-to-structure-your-react-application-2bb4d9ca5f97)
+* [PyGame Documentation](https://www.pygame.org/docs/)
+* [Idea Example](https://itsourcecode.com/free-projects/python-projects/pacman-in-python-code/)

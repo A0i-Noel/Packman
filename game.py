@@ -1,3 +1,5 @@
+from pydoc import TextDoc
+from turtle import width
 import pygame
 
 from player import Player
@@ -50,96 +52,146 @@ class Game(object):
 
     for i,row in enumerate(environment()):
       for j,item in enumerate(row):
-        if item != 1:
+        if item != 0:
           self.dots_group.add(Ellipse(j*32+12,i*32+12,WHITE,8,8))
 
 
-def process_events(self):
+  def process_events(self):
 
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      return True
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        return True
 
-    self.menu.event_handler(event)
-    
+      self.menu.event_handler(event)
+
+      if event.type == pygame.KEYDOWN:
+
+        if event.key == pygame.K_RETURN:
+          if self.game_over and not self.about:
+            if self.menu.state == 0:
+              self.__init__()
+              self.game_over = False
+
+            elif self.menu.state == 1:
+              self.about = True
+
+            elif self.menu.state == 2:
+              return True
+
+        elif event.key == pygame.K_RIGHT:
+          self.player.move_right()
+        elif event.key == pygame.K_LEFT:
+          self.player.move_left()
+        elif event.key == pygame.K_UP:
+          self.player.move_up()
+        elif event.key == pygame.K_DOWN:
+          self.player.move_down()
+        elif event.key == pygame.K_ESCAPE:
+          self.game_over = True
+          self.about = False
+
+      elif event.type == pygame.KEYUP:
+        if event.key == pygame.K_RIGHT:
+          self.player.stop_move_right()
+        elif event.key == pygame.K_LEFT:
+          self.player.stop_move_left()
+        elif event.key == pygame.K_UP:
+          self.player.stop_move_up()
+        elif event.key == pygame.K_DOWN:
+          self.player.stop_move_down()
+
+    return False
+
+  def run_logic(self):
+
+    if not self.game_over:
+      self.player.update(self.horizontal_blocks,self.vertical_blocks)
+      block_hit_list = pygame.sprite.spritecollide(self.player,self.dots_group,True)
+
+      if len(block_hit_list) > 0:
+        self.score += 1
+
+      block_hit_list = pygame.sprite.spritecollide(self.player,self.enemies,True)
+
+      if len(block_hit_list) > 0:
+        self.player.explosion = True
+
+      self.game_over = self.player.game_over
+      self.enemies.update(self.horizontal_blocks,self.vertical_blocks)
+
+  def display_frame(self,screen):
+
+    screen.fill(BLACK)
+
+    if self.game_over:
+      if self.about:
+        self.display_message(screen, "Game made by Aoi Kuriki for CSE310 project in BYUI, Oct 6, 2022")
+      else:
+        self.menu.display_frame(screen)
+
+    else:
+      self.horizontal_blocks.draw(screen)
+      self.vertical_blocks.draw(screen)
+      draw_environment(screen)
+      self.dots_group.draw(screen)
+      self.enemies.draw(screen)
+
+      screen.blit(self.player.image,self.player.rect)
+
+      text = self.font.render("Score:" + str(self.score), True, GREEN)
+      screen.blit(text,[120,20])
+
+    pygame.display.flip()
+
+
+  def display_message(self,screen,message,color=(255,0,0)):
+    label = self.font.render(message,True,color)
+
+    width = label.get_width()
+    height = label.get_height()
+
+    posX = (SCREEN_WIDTH /2) - (width /2)
+    posY = (SCREEN_HEIGHT/2) - (height /2)
+
+    screen.blit(label,(posX,posY))
+
+
+class Menu(object):
+  
+  state=0
+
+  def __init__(self,items,font_color=(0,0,0),select_color=(255,0,0),ttf_font=None,font_size=25):
+    self.font_color = font_color
+    self.select_color = select_color
+    self.items = items
+    self.font = pygame.font.Font(ttf_font,font_size)
+
+  def display_frame(self,screen):
+
+    for index,item in enumerate(self.items):
+      if self.state == index:
+        label = self.font.render(item, True,self.select_color)
+      else:
+        label = self.font.render(item,True,self.font_color)
+
+      width = label.get_width()
+      height = label.get_height()
+  
+      posX = (SCREEN_WIDTH /2) - (width /2)
+      t_h = len(self.items) * height
+      posY = (SCREEN_HEIGHT /2) - (t_h /2) + (index * height)
+
+      screen.blit(label,(posX,posY))
+
+  def event_handler(self,event):
+
     if event.type == pygame.KEYDOWN:
 
-      if event.key == pygame.K_RETURN:
-        if self.game_over and not self.about:
-          if self.menu.state == 0:
-            self.__init__()
-            self.game_over = False
+      if event.key == pygame.K_UP:
+        if self.state > 0:
+          self.state -= 1
 
-          elif self.menu.state == 1:
-            self.about = True
-
-          elif self.menu.state == 2:
-            return True
-
-      elif event.key == pygame.K_RIGHT:
-        self.player.move_right()
-      elif event.key == pygame.K_LEFT:
-        self.player.move_left()
-      elif event.key == pygame.K_UP:
-        self.player.move_up()
       elif event.key == pygame.K_DOWN:
-        self.player.move_down()
-      elif event.key == pygame.K_ESCAPE:
-        self.game_over = True
-        self.about = False
-
-    elif event.type == pygame.KEYUP:
-      if event.key == pygame.K_RIGHT:
-        self.player.stop_move_right()
-      elif event.key == pygame.K_LEFT:
-        self.player.stop_move_left()
-      elif event.key == pygame.K_UP:
-        self.player.stop_move_up()
-      elif event.key == pygame.K_DOWN:
-        self.player.stop_move_down()
-
-  return False
-
-def run_logic(self):
-
-  if not self.game_over:
-    self.player.update(self.horizontal_blocks,self.vertical_blocks)
-    block_hit_list = pygame.sprite.spritecollide(self.player,self.dots_group,True)
-
-    if len(block_hit_list) > 0:
-      self.score += 1
-
-    block_hit_list = pygame.sprite.spritecollide(self.player,self.enemies,True)
-
-    if len(block_hit_list) > 0:
-      self.player.explosion = True
-
-    self.game_over = self.player.game_over
-    self.enemies.update(self.horizontal_blocks,self.vertical_blocks)
-
-def display_frame(self,screen):
-  
-  screen.fill(BLACK)
-
-  if self.game_over:
-    if self.about:
-      self.display_message(screen, "Game made by Aoi Kuriki for CSE310 project in BYUI, Oct 6, 2022")
-    else:
-      self.menu.display_frame(screen)
-
-  else:
-    self.horizontal_blocks.draw(screen)
-    self.vertical_blocks.draw(screen)
-    draw_environment(screen)
-    self.dots_group.draw(screen)
-    self.enemies.draw(screen)
-
-    screen.blit(self.player.image,self.player.rect)
-
-    text = self.font.render("Score:" + str(self.score), True, GREEN)
-    screen.blit(text,[120,20])
-
-  pygame.display.flip()
-
-
-def display_message(self,screen,message,color=(255,0,0)):
+        if self.state < len(self.items) -1:
+          self.state += 1
+    
